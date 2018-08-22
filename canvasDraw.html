@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        *{
+            padding: 0;
+            margin: 0;
+        }
+        ul{
+            list-style: none;
+        }
+        .draw{
+            width: 500px;
+            height: 400px;
+            border: 1px solid #ccc;
+            margin: 10px auto;   
+        }
+        .draw canvas.drawing{
+            background: #fff;
+            border: 1px solid #ff0000;
+        }
+        .menus > div{
+            display: flex;
+        }
+        .menus > div ul{
+            flex: 1;
+            height: 20px;
+        }
+        .menus ul li{
+            width: 20px;
+            height: 20px;
+            margin: 0 10px;
+            float: left;
+        }
+        .menus ul li.active{
+            transform: scale(1.2);
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="draw">
+        <canvas width="500" height="300" id="canvas" class="drawing"></canvas>
+        <section class="menus">
+            <div>
+                <span>颜色选择</span>
+                <ul class="colors">
+                    <li style="background-color:red;"></li>
+                    <li style="background-color:blue;"></li>
+                    <li style="background-color:green;"></li>
+                    <li style="background-color:black;"></li>
+                    <li style="background-color:orange;"></li>
+                    <li style="background-color:pink;"></li>
+                </ul>
+            </div>
+            <div>
+                <span>字号选择</span>
+                <select class="sizes"></select>
+            </div>
+            <div class="clean">
+                <button class="huabi">画笔</button>
+                <button class="xpc">橡皮擦</button>
+            </div>
+        </section>
+    </div>
+    
+    <script>
+        
+        var canvas = document.getElementById('canvas'),
+            ctx = canvas.getContext("2d"),
+            x = 0, y = 0;
+        
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        
+        //点击选择颜色
+        var Lis = document.getElementsByClassName('colors')[0].getElementsByTagName('li');
+        for(let i=0,len=Lis.length; i<len;i++){
+            Lis[i].onclick=function(){
+                ctx.strokeStyle = this.style.backgroundColor;
+                for(let j=0,lens=Lis.length; j<lens;j++){
+                    if(i==j){
+                        Lis[j].className = "active";
+                    }else{
+                        Lis[j].className = "";
+                    }
+                }
+            }
+        }
+        
+    
+        //生成字号列表
+        for(var i = 10; i <= 100; i+=10){
+            let option = document.createElement('option'),
+                sizes = document.getElementsByClassName('sizes')[0];
+            option.value = i;
+            option.innerHTML = i;
+            sizes.appendChild(option);
+        }
+        ctx.lineWidth = 10;
+        
+        //选择字号
+        document.getElementsByClassName('sizes')[0].onchange=function(){
+            ctx.lineWidth = this.value;
+        };
+        
+        //画笔
+        document.getElementsByClassName('huabi')[0].onclick=function(){
+            ctx.globalCompositeOperation = "source-over";
+        };
+        
+        //橡皮擦
+        document.getElementsByClassName('xpc')[0].onclick=function(){
+            ctx.globalCompositeOperation = "destination-out";
+        }
+        
+        //判断点下的状态
+        var touched = false;
+        
+        canvas.onmousedown = function(event){
+            x = event.pageX - canvas.offsetLeft;
+            y = event.pageY - canvas.offsetTop;
+            
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            touched = true;
+        }
+        canvas.onmousemove = function(e){
+            if(touched){
+                x = event.pageX - canvas.offsetLeft;
+                y = event.pageY - canvas.offsetTop;
+
+                ctx.lineTo(x, y);
+                ctx.stroke();
+            }
+        }
+        canvas.onmouseup = function(e){
+            touched = false;
+        }
+        
+    </script>
+</body>
+</html>

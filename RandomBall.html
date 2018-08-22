@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>随机小球</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        #canvas {
+            display: block;
+        }
+
+        .gd {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            /* background: radial-gradient(#18a15f, #ff4343); */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .gd>* {
+            margin: 10px;
+            outline: none;
+        }
+
+        .gd button {
+            background: #2319dc;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+
+        .gd button:hover {
+            background: #ff4343;
+            box-shadow: 0 5px 10px#000;
+        }
+
+        .gd button:active {
+            transition: all 0s;
+            background: #18a15f
+        }
+
+        .gd input {
+            text-align: center;
+            min-width: 50%;
+            border-radius: 5px;
+            border: none;
+            line-height: 30px;
+        }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+        }
+
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="gd" id="gd"><input type="text" class="zz" placeholder="你想生成什么字"><input type="number" class="num"><button>开启气泡之旅</button></div>
+    <canvas id="canvas"></canvas>
+    <script>
+        var canvas = document.querySelector("#canvas");
+        var w = window.innerWidth;
+        var h = window.innerHeight;
+        var gd = document.querySelector("#gd");
+        var ipt1 = document.querySelector(".gd .zz");
+        var ipt2 = document.querySelector(".gd .num");
+        var btn = document.querySelector(".gd button");
+        canvas.width = w;
+        canvas.height = h;
+        ipt2.placeholder = "屏幕分辨率得小球数量(0-" + parseInt(w / 5) + ")"
+        var can = canvas.getContext('2d');
+        // var font = ['梁', '文', '洁', '是', '笨', '蛋']
+        canvas.style.background = "linear-gradient(to right bottom,#" + Math.random().toString(16).slice(2, 8) +
+            ",#" +
+            Math.random().toString(16).slice(2, 8) + ",#" +
+            Math.random().toString(16).slice(2, 8) + ",#" +
+            Math.random().toString(16).slice(2, 8) + ")";
+        var aBubble = [];
+
+        function getArrayItems(arr, num) {
+            //新建一个数组,将传入的数组复制过来,用于运算,而不要直接操作传入的数组;
+            var temp_array = new Array();
+            for (var index in arr) {
+                temp_array.push(arr[index]);
+            }
+            //取出的数值项,保存在此数组
+            var font = new Array();
+            for (var i = 0; i < num; i++) {
+                //判断如果数组还有可以取出的元素,以防下标越界
+                if (temp_array.length > 0) {
+                    //在数组中产生一个随机索引
+                    var arrIndex = Math.floor(Math.random() * temp_array.length);
+                    //将此随机索引的对应的数组元素值复制出来
+                    font[i] = temp_array[arrIndex];
+                    //然后删掉此索引的数组元素,这时候temp_array变为新的数组
+                    temp_array.splice(arrIndex, 1);
+                } else {
+                    //数组中数据项取完后,退出循环,比如数组本来只有10项,但要求取出20项.
+                    break;
+                }
+            }
+            return font;
+        }
+
+        function random(min, max) { //随机返回一个 min-max之间的随机数
+            return Math.random() * (max - min) + min;
+        }
+
+        btn.onclick = function () {
+            var val = ipt1.value.replace(/\s/g, "");
+            var val2 = ~~ipt2.value;
+            if (val && val2 <= parseInt(w / 5)) {
+                var ArrList = val.split("")
+                var font = getArrayItems(ArrList, 6);
+
+                function Bubble() {}; //圆的DNA  构造函数
+                Bubble.prototype = {
+                    init: function (speed) { //圆的基本配置
+                        this.r = random(10, 20); //半径
+                        this.x = random(this.r, w - this.r);
+                        this.y = random(this.r, h - this.r);
+                        // this.color = aColor[Math.floor(random(0, aColor.length))]; //颜色
+                        this.color = '#' + Math.random().toString(16).slice(2, 8);
+                        this.vx = random(-speed, speed);
+                        this.vy = random(-speed, speed);
+                        this.font = font[Math.floor(random(0, font.length))];
+                    },
+                    darw: function () {
+                        can.beginPath();
+                        can.fillStyle = this.color;
+                        can.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+                        can.globalAlpha = 0.6;
+                        can.fill();
+                        can.beginPath();
+                        can.font = this.r + "px Courier New";
+                        //设置字体填充颜色
+                        can.fillStyle = "#ffffff";
+                        //从坐标点(50,50)开始绘制文字
+                        can.fillText(this.font, this.x - this.r / 2, this.y + this.r / 3);
+                        can.fill();
+                    },
+                    move() {
+                        this.x += this.vx;
+                        this.y += this.vy;
+                        if (this.x - this.r < -this.vx || this.x + this.r > w - this.vx) {
+                            this.vx = -this.vx
+                        } else
+                        if (this.y - this.r < -this.vy || this.y + this.r > h - this.vy) {
+                            this.vy = -this.vy
+                        }
+                        this.darw();
+                    }
+                }
+
+                function drawy(num) {
+                    for (let i = 0; i < num; i++) {
+                        var aa = new Bubble();
+                        aa.init(5);
+                        aa.darw();
+                        aBubble.push(aa)
+                    }
+                }
+
+                drawy(val2);
+                setInterval(function () {
+                    can.clearRect(0, 0, w, h)
+                    for (let i in aBubble) {
+                        aBubble[i].move();
+                    }
+                }, 10)
+
+                document.body.removeChild(gd)
+            } else {
+                alert("填写完整哦~")
+            }
+        }
+    </script>
+</body>
+
+</html>
