@@ -85,9 +85,8 @@
         var btn = document.querySelector(".gd button");
         canvas.width = w;
         canvas.height = h;
-        ipt2.placeholder = "屏幕分辨率得小球数量(0-" + parseInt(w / 5) + ")"
+        ipt2.placeholder = "小球数量(0-" + parseInt(w / 5) + ")"
         var can = canvas.getContext('2d');
-        // var font = ['梁', '文', '洁', '是', '笨', '蛋']
         canvas.style.background = "linear-gradient(to right bottom,#" + Math.random().toString(16).slice(2, 8) +
             ",#" +
             Math.random().toString(16).slice(2, 8) + ",#" +
@@ -127,6 +126,9 @@
         btn.onclick = function () {
             var val = ipt1.value.replace(/\s/g, "");
             var val2 = ~~ipt2.value;
+            if(!val2 || val2<0){
+                return alert("请填写正确的数量");
+            }
             if (val && val2 <= parseInt(w / 5)) {
                 var ArrList = val.split("")
                 var font = getArrayItems(ArrList, 6);
@@ -189,7 +191,7 @@
 
                 document.body.removeChild(gd)
             } else {
-                alert("填写完整哦~")
+                alert("请填写正确的数量");
             }
         }
     </script>
